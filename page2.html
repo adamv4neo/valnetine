@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Our Moments 🎞️</title>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;700&family=Dancing+Script:wght@400;600&family=Reenie+Beanie&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --rose: #d94f6e;
+      --blush: #f9e4eb;
+      --cream: #fdf8f2;
+      --ink: #3b2030;
+      --faded: #9b6070;
+    }
+
+    body {
+      background: var(--cream);
+      background-image:
+        url("data:image/svg+xml,%3Csvg width='400' height='400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"),
+        repeating-linear-gradient(0deg, transparent, transparent 27px, #e8d5c044 28px),
+        repeating-linear-gradient(90deg, transparent, transparent 27px, #e8d5c022 28px);
+      min-height: 100vh;
+      font-family: 'Caveat', cursive;
+      color: var(--ink);
+      overflow-x: hidden;
+      padding-bottom: 100px;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='f'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='4'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23f)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 200;
+    }
+
+    /* ── Header ── */
+    header {
+      text-align: center;
+      padding: 50px 20px 14px;
+    }
+    .page-title {
+      font-family: 'Dancing Script', cursive;
+      font-size: clamp(2.2rem, 6vw, 3.8rem);
+      color: var(--rose);
+      display: block;
+    }
+    .page-sub {
+      font-family: 'Reenie Beanie', cursive;
+      font-size: clamp(1.1rem, 3vw, 1.6rem);
+      color: var(--faded);
+      margin-top: 6px;
+      letter-spacing: 2px;
+    }
+    .divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin: 14px auto 0;
+      color: var(--rose);
+      opacity: 0.6;
+    }
+    .divider-line {
+      width: 80px; height: 1px;
+      background: linear-gradient(to right, transparent, var(--rose));
+    }
+    .divider-line:last-child {
+      background: linear-gradient(to left, transparent, var(--rose));
+    }
+
+    /* ── Scrapbook canvas ── */
+    .scrapbook {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 24px;
+    }
+
+    /* ── Memory row ── */
+    .memory {
+      display: flex;
+      align-items: flex-start;
+      gap: 32px;
+      margin-bottom: 70px;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .memory.visible { opacity: 1; transform: translateY(0); }
+    .memory:nth-child(even) { flex-direction: row-reverse; }
+    .memory:nth-child(1) { margin-left: 2%; }
+    .memory:nth-child(2) { margin-right: 5%; margin-left: 4%; }
+    .memory:nth-child(3) { margin-left: 1%; margin-right: 3%; }
+
+    /* ── Film polaroid wrapper ── */
+    .film-polaroid {
+      flex-shrink: 0;
+      position: relative;
+      width: 260px;
+    }
+
+    /* ── Naik-turun float animation ── */
+    .memory:nth-child(1) .film-polaroid { animation: float1 4.2s ease-in-out infinite; }
+    .memory:nth-child(2) .film-polaroid { animation: float2 5s ease-in-out infinite; }
+    .memory:nth-child(3) .film-polaroid { animation: float3 4.6s ease-in-out infinite; }
+
+    @keyframes float1 {
+      0%,100% { transform: rotate(-4deg) translateY(0px); }
+      50%      { transform: rotate(-3deg) translateY(-10px); }
+    }
+    @keyframes float2 {
+      0%,100% { transform: rotate(3.5deg) translateY(0px); }
+      50%      { transform: rotate(4deg)   translateY(-12px); }
+    }
+    @keyframes float3 {
+      0%,100% { transform: rotate(-2.5deg) translateY(0px); }
+      50%      { transform: rotate(-1.5deg) translateY(-8px); }
+    }
+
+    /* ── Film strip top ── */
+    .film-strip {
+      width: 100%;
+      background: #1a1a1a;
+      border-radius: 4px 4px 0 0;
+      padding: 8px 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .film-strip::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent 0px, transparent 3px,
+        rgba(255,255,255,0.03) 3px, rgba(255,255,255,0.03) 4px
+      );
+    }
+    .sprocket-row {
+      display: flex;
+      gap: 7px;
+      padding: 0 4px;
+    }
+    .sprocket {
+      width: 10px;
+      height: 8px;
+      background: #3a3a3a;
+      border-radius: 2px;
+      border: 1px solid #555;
+      position: relative;
+      overflow: hidden;
+    }
+    .sprocket::after {
+      content: '';
+      position: absolute;
+      inset: 1px;
+      background: #222;
+      border-radius: 1px;
+    }
+
+    /* scrolling film text */
+    .film-label {
+      color: #f0e68c;
+      font-family: 'Courier New', monospace;
+      font-size: 0.55rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      white-space: nowrap;
+      overflow: hidden;
+      flex: 1;
+      text-align: center;
+      animation: scrollText 8s linear infinite;
+    }
+    @keyframes scrollText {
+      0%   { letter-spacing: 2px; opacity: 1; }
+      50%  { letter-spacing: 4px; opacity: 0.6; }
+      100% { letter-spacing: 2px; opacity: 1; }
+    }
+
+    /* ── Film strip bottom (same) ── */
+    .film-strip-bottom {
+      border-radius: 0 0 4px 4px;
+      border-top: 1px solid #333;
+    }
+
+    /* ── Polaroid white frame ── */
+    .polaroid-frame {
+      background: #fff;
+      padding: 10px 10px 0 10px;
+      position: relative;
+      box-shadow:
+        0 4px 20px rgba(180,80,100,0.2),
+        0 1px 3px rgba(180,80,100,0.15),
+        inset 0 0 0 1px #f0dde4;
+    }
+
+    /* ── Video inside polaroid ── */
+    .video-wrap {
+      width: 100%;
+      aspect-ratio: 9/12;
+      position: relative;
+      overflow: hidden;
+      background: #1a0a10;
+    }
+    .video-wrap video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: contrast(1.05) saturate(0.88) sepia(0.1);
+      transition: filter 0.4s;
+    }
+    .film-polaroid:hover .video-wrap video {
+      filter: contrast(1.08) saturate(1) sepia(0);
+    }
+
+    /* grain overlay on video */
+    .video-wrap::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.07'/%3E%3C/svg%3E");
+      pointer-events: none;
+      mix-blend-mode: multiply;
+    }
+
+    /* vignette */
+    .video-wrap::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 60%, rgba(30,5,15,0.45) 100%);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* no-video placeholder */
+    .vid-placeholder {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 8px; color: #c08090;
+      font-size: 0.95rem; text-align: center; padding: 16px;
+    }
+    .vid-placeholder-icon { font-size: 3rem; opacity: 0.6; }
+
+    /* polaroid bottom caption area */
+    .pol-bottom {
+      padding: 10px 8px 14px;
+      text-align: center;
+    }
+    .pol-caption {
+      font-family: 'Caveat', cursive;
+      font-size: 1.05rem;
+      color: #7a4454;
+      line-height: 1.3;
+    }
+
+    /* ── Tape pieces ── */
+    .tape {
+      position: absolute;
+      width: 54px;
+      height: 18px;
+      background: rgba(255, 215, 220, 0.5);
+      border-left: 1px dashed rgba(220,150,160,0.35);
+      border-right: 1px dashed rgba(220,150,160,0.35);
+      z-index: 5;
+    }
+    .tape-tl { top: -8px; left: 16px; transform: rotate(-5deg); }
+    .tape-tr { top: -8px; right: 16px; transform: rotate(4deg); }
+
+    /* ── Washi strips ── */
+    .washi {
+      position: absolute;
+      height: 16px;
+      opacity: 0.55;
+      border-radius: 1px;
+      pointer-events: none;
+    }
+    .washi-pink {
+      background: repeating-linear-gradient(90deg, #f9a8c9 0px, #f9a8c9 8px, #fde0ea 8px, #fde0ea 16px);
+    }
+    .washi-yellow {
+      background: repeating-linear-gradient(90deg, #fcd34d 0px, #fcd34d 6px, #fef3c7 6px, #fef3c7 12px);
+    }
+    .washi-mint {
+      background: repeating-linear-gradient(90deg, #a7f3d0 0px, #a7f3d0 10px, #d1fae5 10px, #d1fae5 20px);
+    }
+
+    /* ── Note card ── */
+    .note {
+      flex: 1;
+      position: relative;
+      align-self: center;
+    }
+    .note-inner {
+      background: #fffdf5;
+      border: 1px solid #e8d8b0;
+      border-radius: 2px;
+      padding: 22px 24px 28px;
+      box-shadow: 2px 4px 14px #c8a88822, inset 0 1px 0 #fff8e0;
+      position: relative;
+      overflow: hidden;
+    }
+    .note-inner::before {
+      content: '';
+      position: absolute;
+      left: 42px; top: 0; bottom: 0;
+      width: 1px;
+      background: rgba(216,160,170,0.35);
+    }
+    .note-inner::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg, transparent, transparent 31px, rgba(200,180,160,0.18) 32px
+      );
+      pointer-events: none;
+    }
+    .memory:nth-child(1) .note-inner { transform: rotate(1.2deg); }
+    .memory:nth-child(2) .note-inner { transform: rotate(-0.9deg); }
+    .memory:nth-child(3) .note-inner { transform: rotate(0.7deg); }
+
+    .note-text {
+      font-family: 'Caveat', cursive;
+      font-size: clamp(1.15rem, 2.5vw, 1.4rem);
+      color: var(--ink);
+      line-height: 2.05;
+      padding-left: 14px;
+      position: relative;
+      z-index: 1;
+    }
+    .note-sig {
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.3rem;
+      color: var(--rose);
+      margin-top: 10px;
+      display: block;
+      text-align: right;
+      padding-left: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* sticker floating on note */
+    .sticker-abs {
+      position: absolute;
+      pointer-events: none;
+      font-size: 1.6rem;
+      opacity: 0.85;
+    }
+
+    /* ── Film counter badge ── */
+    .film-counter {
+      position: absolute;
+      bottom: 18px;
+      right: -12px;
+      background: #1a1a1a;
+      color: #f0e68c;
+      font-family: 'Courier New', monospace;
+      font-size: 0.65rem;
+      padding: 3px 7px;
+      border-radius: 2px;
+      letter-spacing: 1px;
+      box-shadow: 1px 2px 6px rgba(0,0,0,0.4);
+      z-index: 10;
+    }
+
+    /* ── Back button ── */
+    .back-btn {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--rose);
+      color: #fff;
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.25rem;
+      padding: 12px 32px;
+      border-radius: 50px;
+      text-decoration: none;
+      box-shadow: 0 6px 24px #d94f6e55;
+      transition: transform 0.15s, box-shadow 0.15s;
+      z-index: 300;
+      white-space: nowrap;
+    }
+    .back-btn:hover {
+      transform: translateX(-50%) translateY(-3px);
+      box-shadow: 0 12px 32px #d94f6e66;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.3rem;
+      color: var(--rose);
+      opacity: 0.7;
+    }
+
+    @media (max-width: 620px) {
+      .memory { flex-direction: column !important; align-items: center; margin-left: 0 !important; margin-right: 0 !important; }
+      .film-polaroid { width: 230px !important; }
+      .note { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="page-title">🎞️ our moving memories</span>
+  <p class="page-sub">~ frame by frame ~</p>
+  <div class="divider">
+    <div class="divider-line"></div>
+    <span>🎬</span>
+    <div class="divider-line"></div>
+  </div>
+</header>
+
+<div class="scrapbook">
+
+  <!-- ═══ MEMORY 1 ═══ -->
+  <div class="memory">
+    <div class="film-polaroid">
+      <div class="tape tape-tl"></div>
+      <div class="tape tape-tr"></div>
+
+      <!-- Film strip top -->
+      <div class="film-strip">
+        <div class="sprocket-row">
+          <div class="sprocket"></div>
+          <div class="sprocket"></div>
+          <div class="sprocket"></div>
+        </div>
+        <span class="film-label">KODAK • 400TX • 35mm</span>
+        <div class="sprocket-row">
+          <div class="sprocket"></div>
+          <div class="sprocket"></div>
+          <div class="sprocket"></div>
+        </div>
+      </div>
+
+      <!-- White polaroid frame -->
+      <div class="polaroid-frame">
+        <div class="video-wrap">
+          <video autoplay muted loop playsinline>
+            <source src="video1.mp4" type="video/mp4"/>
+          </video>
+          <div class="vid-placeholder" id="ph1">
+            <span class="vid-placeholder-icon">🎞️</span>
+            <span>video1.mp4</span>
+          </div>
+        </div>
+        <div class="pol-bottom">
+          <p class="pol-caption">kamu & aku 🎬<br><small style="font-size:0.8rem;color:#b07080;">Jan '25</small></p>
+        </div>
+      </div>
+
+      <!-- Film strip bottom -->
+      <div class="film-strip film-strip-bottom">
+        <div class="sprocket-row">
+          <div class="sprocket"></div>
+          <div class="sprocket"></div>
+          <div class="sprocket"></div>
+        </div>
+        <span class="film-label">☆ 001 ☆</span>
+        <div class="sprocket-row">
+          <div class="sprocket"></div>
+          <div class="sprocket"></div>
+          <div class="sprocket"></div>
+        </div>
+      </div>
+
+      <div class="film-counter">▶ 001</div>
+    </div>
+
+    <div class="note">
+      <div class="washi washi-pink" style="width:110px;top:-8px;left:25%;transform:rotate(-2deg);"></div>
+      <div class="note-inner">
+        <p class="note-text">
+          Video ini setiap kali aku tonton,<br>
+          senyumku nggak bisa ditahan.<br>
+          Ada sesuatu dari cara kamu bergerak —<br>
+          natural banget, nggak dibuat-buat. 🌿
+        </p>
+        <span class="note-sig">— ini favoritku 🎞️</span>
+      </div>
+      <span class="sticker-abs" style="top:-18px;right:6px;transform:rotate(12deg)">🌹</span>
+    </div>
+  </div>
+
+  <!-- ═══ MEMORY 2 ═══ -->
+  <div class="memory">
+    <div class="film-polaroid">
+      <div class="tape tape-tl"></div>
+
+      <div class="film-strip">
+        <div class="sprocket-row">
+          <div class="sprocket"></div>
+          <div class="sprocket"></div>
+          <div class="sprocket"></div>
+        </div>
+        <span class="film-label">FUJIFILM • PRO400H • 35mm</span>
+        <div class="sprocket-row">
+          <div class="sprocket"></div>
+          <div class="sprocket"></div>
+          <div class="sprocket"></div>
+        </div>
+      </div>
+
+      <div class="polaroid-frame">
+        <div class="video-wrap">
+          <video autoplay muted loop playsinline>
+            <source src="video2.mp4" type="video/mp4"/>
+          </video>
+          <div class="vid-placeholder" id="ph2">
+            <span class="vid-placeholder-icon">🎞️</span>
+            <span>video2.mp4</span>
+          </div>
+        </div>
+        <div class="pol-bottom">
+          <p class="pol-caption">momen itu ✨<br><small style="font-size:0.8rem;color:#b07080;">Feb '25</small></p>
+        </div>
+      </div>
+
+      <div class="film-strip film-strip-bottom">
+        <div class="sprocket-row">
+          <div class="sprocket"></div>
+          <div class="sprocket"></div>
+          <div class="sprocket"></div>
+        </div>
+        <span class="film-label">☆ 002 ☆</span>
+        <div class="sprocket-row">
+          <div class="sprocket"></div>
+          <div class="sprocket"></div>
+          <div class="sprocket"></div>
+        </div>
+      </div>
+
+      <div class="film-counter">▶ 002</div>
+    </div>
+
+    <div class="note">
+      <div class="washi washi-yellow" style="width:95px;bottom:-8px;right:15%;transform:rotate(2deg);"></div>
+      <div class="note-inner">
+        <p class="note-text">
+          Waktu ini direkam,<br>
+          aku nggak tau ini bakal jadi video<br>
+          yang paling sering aku rewatch diam-diam. 🍂<br>
+          Sekarang udah tau.
+        </p>
+        <span class="note-sig">— loop terus ya 💫</span>
+      </div>
+      <span class="sticker-abs" style="bottom:-14px;left:10px;transform:rotate(-10deg);font-size:1.8rem">🎀</span>
+      <span class="sticker-abs" style="top:-20px;left:40%;transform:rotate(5deg);font-size:1.3rem">⭐</span>
+    </div>
+  </div>
+
+  <!-- ═══ MEMORY 3 ═══ -->
+  <div class="memory">
+    <div class="film-polaroid">
+      <div class="tape tape-tr"></div>
+
+      <div class="film-strip">
+        <div class="sprocket-row">
+          <div class="sprocket"></div>
+          <div class="sprocket"></div>
+          <div class="sprocket"></div>
+        </div>
+        <span class="film-label">ILFORD • HP5 • 35mm</span>
+        <div class="sprocket-row">
+          <div class="sprocket"></div>
+          <div class="sprocket"></div>
+          <div class="sprocket"></div>
+        </div>
+      </div>
+
+      <div class="polaroid-frame">
+        <div class="video-wrap">
+          <video autoplay muted loop playsinline>
+            <source src="video3.mp4" type="video/mp4"/>
+          </video>
+          <div class="vid-placeholder" id="ph3">
+            <span class="vid-placeholder-icon">🎞️</span>
+            <span>video3.mp4</span>
+          </div>
+        </div>
+        <div class="pol-bottom">
+          <p class="pol-caption">selamanya 💗<br><small style="font-size:0.8rem;color:#b07080;">Mar '25</small></p>
+        </div>
+      </div>
+
+      <div class="film-strip film-strip-bottom">
+        <div class="sprocket-row">
+          <div class="sprocket"></div>
+          <div class="sprocket"></div>
+          <div class="sprocket"></div>
+        </div>
+        <span class="film-label">☆ 003 ☆</span>
+        <div class="sprocket-row">
+          <div class="sprocket"></div>
+          <div class="sprocket"></div>
+          <div class="sprocket"></div>
+        </div>
+      </div>
+
+      <div class="film-counter">▶ 003</div>
+    </div>
+
+    <div class="note">
+      <div class="washi washi-mint" style="width:100px;top:-8px;left:18%;transform:rotate(-1.5deg);"></div>
+      <div class="note-inner">
+        <p class="note-text">
+          Ini video terakhir, tapi perasaannya<br>
+          nggak pernah mau berhenti.<br>
+          Kayak videonya — terus muter,<br>
+          nggak ada end-nya. 🌸
+        </p>
+        <span class="note-sig">— on repeat forever 💝</span>
+      </div>
+      <span class="sticker-abs" style="top:-16px;right:4px;transform:rotate(8deg)">✨</span>
+      <span class="sticker-abs" style="bottom:-18px;right:20px;transform:rotate(-5deg);font-size:1.4rem">💕</span>
+    </div>
+  </div>
+
+</div>
+
+<footer>every frame of you is my favorite scene 🎞️</footer>
+
+<!-- Falling petals canvas -->
+<canvas id="petals" style="position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0.4"></canvas>
+
+<a class="back-btn" href="page1.html">← Kembali</a>
+
+<script>
+  // ── Intersection observer fade-in
+  const memories = document.querySelectorAll('.memory');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 150);
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  memories.forEach(m => observer.observe(m));
+
+  // ── Hide video placeholder if video loads
+  document.querySelectorAll('.video-wrap video').forEach((vid, i) => {
+    const ph = document.getElementById('ph' + (i + 1));
+    vid.addEventListener('loadeddata', () => {
+      if (ph) ph.style.display = 'none';
+    });
+    // If video errors, ensure placeholder shows
+    vid.addEventListener('error', () => {
+      vid.style.display = 'none';
+      if (ph) ph.style.display = 'flex';
+    });
+    // Attempt autoplay
+    vid.play().catch(() => {});
+  });
+
+  // ── Falling petals
+  const canvas = document.getElementById('petals');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+
+  const petals = Array.from({ length: 20 }, () => ({
+    x: Math.random() * window.innerWidth,
+    y: Math.random() * window.innerHeight - window.innerHeight,
+    size: 5 + Math.random() * 9,
+    speed: 0.5 + Math.random() * 1,
+    drift: (Math.random() - 0.5) * 0.5,
+    angle: Math.random() * Math.PI * 2,
+    spin: (Math.random() - 0.5) * 0.035,
+    hue: 335 + Math.random() * 25,
+  }));
+
+  function drawPetal(p) {
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.angle);
+    ctx.beginPath();
+    ctx.ellipse(0, 0, p.size * 0.5, p.size, 0, 0, Math.PI * 2);
+    ctx.fillStyle = `hsla(${p.hue}, 70%, 83%, 0.7)`;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  (function loop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    petals.forEach(p => {
+      p.y += p.speed;
+      p.x += p.drift + Math.sin(p.y * 0.018) * 0.45;
+      p.angle += p.spin;
+      if (p.y > canvas.height + 20) {
+        p.y = -20;
+        p.x = Math.random() * canvas.width;
+      }
+      drawPetal(p);
+    });
+    requestAnimationFrame(loop);
+  })();
+</script>
+</body>
+</html>

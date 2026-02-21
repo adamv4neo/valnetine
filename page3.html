@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>A Letter For You 💌</title>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Dancing+Script:wght@500;700&family=Reenie+Beanie&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: #f0e6d3;
+      background-image:
+        url("data:image/svg+xml,%3Csvg width='500' height='500' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='500' height='500' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      font-family: 'Caveat', cursive;
+      padding: 60px 20px 120px;
+      overflow-x: hidden;
+    }
+
+    /* ── Paper ── */
+    .paper {
+      width: 100%;
+      max-width: 680px;
+      background: #fffef9;
+      border-radius: 2px;
+      padding: 60px 64px 80px 100px;
+      position: relative;
+      box-shadow:
+        0 2px 4px rgba(160,100,80,0.1),
+        0 8px 32px rgba(160,100,80,0.14),
+        0 24px 64px rgba(160,100,80,0.08),
+        inset 0 0 0 1px rgba(200,170,140,0.2);
+
+      /* Ruled lines */
+      background-image:
+        /* red margin line */
+        linear-gradient(90deg, transparent 72px, #f0c0c0 72px, #f0c0c0 73px, transparent 73px),
+        /* blue ruled lines */
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 31px,
+          #d6e8f5 32px
+        );
+      background-attachment: local;
+    }
+
+    /* Paper worn edges */
+    .paper::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 0% 0%, rgba(200,170,130,0.12) 0%, transparent 40%),
+        radial-gradient(ellipse at 100% 100%, rgba(200,170,130,0.1) 0%, transparent 40%);
+      border-radius: inherit;
+      pointer-events: none;
+    }
+
+    /* Hole punches */
+    .holes {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 36px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-evenly;
+      align-items: center;
+      padding: 60px 0;
+    }
+    .hole {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #f0e6d3;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.2), 0 1px 0 rgba(255,255,255,0.6);
+    }
+
+    /* ── Header ── */
+    .letter-date {
+      font-family: 'Caveat', cursive;
+      font-size: 1rem;
+      color: #b09080;
+      text-align: right;
+      margin-bottom: 32px;
+      line-height: 2; /* align to ruled line */
+    }
+    .letter-to {
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.8rem;
+      color: #d94f6e;
+      margin-bottom: 32px;
+      line-height: 1; /* one line height */
+      display: block;
+    }
+
+    /* ── Typed text ── */
+    .letter-body {
+      min-height: 320px;
+    }
+
+    .typed-line {
+      font-family: 'Caveat', cursive;
+      font-size: 1.25rem;
+      color: #2e1a22;
+      line-height: 2; /* exactly matches ruled lines = 32px */
+      display: block;
+      overflow: hidden;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* cursor blink */
+    .cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1.1em;
+      background: #d94f6e;
+      vertical-align: text-bottom;
+      margin-left: 1px;
+      animation: blink 0.75s step-end infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0; }
+    }
+
+    /* signature area */
+    .sign-area {
+      margin-top: 32px; /* 1 ruled line gap */
+      text-align: right;
+      opacity: 0;
+      transition: opacity 1s ease 0.5s;
+    }
+    .sign-area.show { opacity: 1; }
+    .sign-label {
+      font-family: 'Caveat', cursive;
+      font-size: 1rem;
+      color: #b09080;
+      line-height: 2;
+    }
+    .sign-name {
+      font-family: 'Dancing Script', cursive;
+      font-size: 2.2rem;
+      color: #d94f6e;
+      display: block;
+      margin-top: -4px;
+    }
+    /* little heart doodle under sig */
+    .sign-doodle {
+      font-size: 1.1rem;
+      opacity: 0.6;
+      margin-top: 4px;
+    }
+
+    /* ── Floating petals ── */
+    canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.35;
+    }
+
+    /* ── Back button ── */
+    .back-btn {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #d94f6e;
+      color: #fff;
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.25rem;
+      padding: 12px 32px;
+      border-radius: 50px;
+      text-decoration: none;
+      box-shadow: 0 6px 24px #d94f6e55;
+      transition: transform 0.15s, box-shadow 0.15s;
+      z-index: 300;
+      white-space: nowrap;
+    }
+    .back-btn:hover {
+      transform: translateX(-50%) translateY(-3px);
+      box-shadow: 0 12px 32px #d94f6e66;
+    }
+
+    @media (max-width: 520px) {
+      .paper { padding: 48px 28px 60px 60px; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="petals"></canvas>
+
+<div class="paper">
+  <div class="holes">
+    <div class="hole"></div>
+    <div class="hole"></div>
+    <div class="hole"></div>
+  </div>
+
+  <p class="letter-date" id="letterDate"></p>
+  <span class="letter-to">Buat kamu,</span>
+
+  <div class="letter-body" id="letterBody"></div>
+
+  <div class="sign-area" id="signArea">
+    <p class="sign-label">dengan sepenuh hati,</p>
+    <span class="sign-name">aku 💌</span>
+    <p class="sign-doodle">❤️ ❤️ ❤️</p>
+  </div>
+</div>
+
+<a class="back-btn" href="page2.html">← Kembali</a>
+
+<script>
+  // ── Set date
+  const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const now = new Date();
+  document.getElementById('letterDate').textContent =
+    `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+
+  // ── Letter paragraphs
+  // Each string = one paragraph. \n = new line within paragraph.
+  const paragraphs = [
+    `halo cipo sayangku pacarku,`,
+    
+    `maafin aku selama ini kalo belum bisa menuhin ekspektasi kamu ya,`,
+    
+    `aku juga masih berusaha sayang,`,
+    
+    `perihal kita sering berantem segala macam dan kamu minta putus juga,`,
+    
+    `itu sebenernya aku tau km ngomong emosi doang,`,
+    
+    `semangat sayang buat semuanya ya,`,
+    
+    `dari himpunan strum strum ituh,`,
+    
+    `dan jadi anak radio kaya di pitlane epwan,`,
+    
+    `terimakasih atas semua support yang kamu berikan,`,
+    
+    `dan semua hal yang km siap sedia respon aku,`,
+    
+    `mulai aku pas ngedown di pln ice, kmhe,`,
+    
+    `dan beberapa hal lainnya,`,
+    
+    `tapi paling keinget pas km semangatin aku pas kmhe`,
+    
+    `karena ku sdh putus asa,`,
+    
+    `terimakasih sayang, love u ❤️`
+];
+  const body = document.getElementById('letterBody');
+  const signArea = document.getElementById('signArea');
+
+  let paraIndex = 0;
+  let charIndex = 0;
+  let currentEl = null;
+  let cursorEl = null;
+  let typing = false;
+  let pauseAfterPara = false;
+
+  function createParagraphEl() {
+    // spacer line between paragraphs
+    if (paraIndex > 0) {
+      const spacer = document.createElement('span');
+      spacer.className = 'typed-line';
+      spacer.textContent = '\u00A0'; // non-breaking space = one ruled line
+      body.appendChild(spacer);
+    }
+    const el = document.createElement('span');
+    el.className = 'typed-line';
+    body.appendChild(el);
+    return el;
+  }
+
+  function typeNext() {
+    if (paraIndex >= paragraphs.length) {
+      // Done — remove cursor, show signature
+      if (cursorEl) cursorEl.remove();
+      signArea.classList.add('show');
+      return;
+    }
+
+    if (charIndex === 0) {
+      currentEl = createParagraphEl();
+      // Move cursor into new element
+      if (cursorEl) cursorEl.remove();
+      cursorEl = document.createElement('span');
+      cursorEl.className = 'cursor';
+      currentEl.appendChild(cursorEl);
+    }
+
+    const para = paragraphs[paraIndex];
+    const ch = para[charIndex];
+
+    // Insert character before cursor
+    cursorEl.insertAdjacentText('beforebegin', ch);
+
+    charIndex++;
+
+    if (charIndex >= para.length) {
+      // Paragraph done
+      charIndex = 0;
+      paraIndex++;
+      // Pause between paragraphs
+      setTimeout(typeNext, 600);
+    } else {
+      // Speed: faster for spaces, normal for chars, slower for punctuation
+      let delay = 42;
+      if (ch === ' ') delay = 20;
+      else if (ch === '\n') delay = 80;
+      else if ('.،,!؟?'.includes(ch)) delay = 180;
+      setTimeout(typeNext, delay);
+    }
+
+    // Auto scroll
+    currentEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  // Start typing after short delay
+  setTimeout(typeNext, 800);
+
+  // ── Falling petals
+  const canvas = document.getElementById('petals');
+  const ctx = canvas.getContext('2d');
+  function resize() { canvas.width = innerWidth; canvas.height = innerHeight; }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const petals = Array.from({ length: 18 }, () => ({
+    x: Math.random() * innerWidth,
+    y: Math.random() * innerHeight - innerHeight,
+    size: 4 + Math.random() * 8,
+    speed: 0.4 + Math.random() * 0.9,
+    drift: (Math.random() - 0.5) * 0.5,
+    angle: Math.random() * Math.PI * 2,
+    spin: (Math.random() - 0.5) * 0.03,
+    hue: 335 + Math.random() * 20,
+  }));
+
+  (function loop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    petals.forEach(p => {
+      p.y += p.speed;
+      p.x += p.drift + Math.sin(p.y * 0.02) * 0.4;
+      p.angle += p.spin;
+      if (p.y > canvas.height + 20) { p.y = -20; p.x = Math.random() * canvas.width; }
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.angle);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, p.size * 0.5, p.size, 0, Math.PI * 2, false);
+      ctx.fillStyle = `hsla(${p.hue},70%,84%,0.65)`;
+      ctx.fill();
+      ctx.restore();
+    });
+    requestAnimationFrame(loop);
+  })();
+</script>
+</body>
+</html>

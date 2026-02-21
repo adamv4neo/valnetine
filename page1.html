@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Our Memories 🌹</title>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;700&family=Dancing+Script:wght@400;600&family=Reenie+Beanie&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --rose: #d94f6e;
+      --blush: #f9e4eb;
+      --cream: #fdf8f2;
+      --warm: #f5e6c8;
+      --ink: #3b2030;
+      --faded: #9b6070;
+    }
+
+    body {
+      background: var(--cream);
+      background-image:
+        url("data:image/svg+xml,%3Csvg width='400' height='400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"),
+        repeating-linear-gradient(0deg, transparent, transparent 27px, #e8d5c044 28px),
+        repeating-linear-gradient(90deg, transparent, transparent 27px, #e8d5c022 28px);
+      min-height: 100vh;
+      font-family: 'Caveat', cursive;
+      color: var(--ink);
+      overflow-x: hidden;
+      padding-bottom: 80px;
+    }
+
+    /* Paper texture overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='f'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='4'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23f)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      padding: 50px 20px 10px;
+      position: relative;
+    }
+    .page-title {
+      font-family: 'Dancing Script', cursive;
+      font-size: clamp(2.2rem, 6vw, 3.8rem);
+      color: var(--rose);
+      display: block;
+      line-height: 1.1;
+    }
+    .page-sub {
+      font-family: 'Reenie Beanie', cursive;
+      font-size: clamp(1.1rem, 3vw, 1.6rem);
+      color: var(--faded);
+      margin-top: 6px;
+      letter-spacing: 2px;
+    }
+    .divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin: 16px auto 0;
+      color: var(--rose);
+      font-size: 1.1rem;
+      opacity: 0.6;
+    }
+    .divider-line {
+      width: 80px;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--rose));
+    }
+    .divider-line:last-child {
+      background: linear-gradient(to left, transparent, var(--rose));
+    }
+
+    /* Scrapbook canvas */
+    .scrapbook {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      position: relative;
+    }
+
+    /* Each memory block — using flex for organic pairing */
+    .memory {
+      display: flex;
+      align-items: flex-start;
+      gap: 28px;
+      margin-bottom: 60px;
+      position: relative;
+    }
+    .memory:nth-child(even) { flex-direction: row-reverse; }
+    .memory:nth-child(3n)   { margin-left: 5%; }
+    .memory:nth-child(3n+2) { margin-right: 6%; margin-left: 2%; }
+
+    /* Polaroid */
+    .polaroid {
+      flex-shrink: 0;
+      background: #fff;
+      padding: 12px 12px 48px 12px;
+      box-shadow: 3px 5px 18px #c9808888, -1px 2px 6px #e0b0b844;
+      border-radius: 2px;
+      position: relative;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      cursor: default;
+    }
+    .polaroid:hover {
+      transform: translateY(-5px) rotate(0deg) !important;
+      box-shadow: 6px 14px 40px #c0607088;
+      z-index: 10;
+    }
+
+    /* Individual rotations */
+    .memory:nth-child(1) .polaroid { transform: rotate(-4deg); width: 220px; }
+    .memory:nth-child(2) .polaroid { transform: rotate(3.5deg); width: 240px; }
+    .memory:nth-child(3) .polaroid { transform: rotate(-2deg); width: 200px; }
+    .memory:nth-child(4) .polaroid { transform: rotate(5deg); width: 230px; }
+    .memory:nth-child(5) .polaroid { transform: rotate(-3.5deg); width: 210px; }
+
+    .photo-wrap {
+      width: 100%;
+      aspect-ratio: 1;
+      overflow: hidden;
+      background: linear-gradient(135deg, #f9d4df, #fce4ec);
+      position: relative;
+    }
+    .photo-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: contrast(1.02) saturate(0.92) sepia(0.08);
+      transition: filter 0.3s;
+    }
+    .polaroid:hover .photo-wrap img { filter: contrast(1.04) saturate(1) sepia(0); }
+    .photo-wrap::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    /* Photo placeholder */
+    .photo-ph {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: var(--rose);
+      font-size: 0.95rem;
+      text-align: center;
+      padding: 12px;
+    }
+    .photo-ph-icon { font-size: 2.6rem; }
+
+    .pol-caption {
+      text-align: center;
+      margin-top: 6px;
+      font-family: 'Caveat', cursive;
+      font-size: 1rem;
+      color: #7a4454;
+      line-height: 1.2;
+    }
+
+    /* Tape */
+    .tape {
+      position: absolute;
+      width: 52px;
+      height: 18px;
+      background: rgba(255, 215, 220, 0.5);
+      border-left: 1px dashed rgba(220,150,160,0.4);
+      border-right: 1px dashed rgba(220,150,160,0.4);
+    }
+    .tape-tl { top: -8px; left: 12px; transform: rotate(-5deg); }
+    .tape-tr { top: -8px; right: 12px; transform: rotate(4deg); }
+    .tape-tc { top: -9px; left: 50%; transform: translateX(-50%) rotate(-1deg); }
+
+    /* Note card beside polaroid */
+    .note {
+      flex: 1;
+      position: relative;
+      align-self: center;
+    }
+    .note-inner {
+      background: #fffdf5;
+      border: 1px solid #e8d8b0;
+      border-radius: 2px;
+      padding: 22px 24px 28px;
+      box-shadow: 2px 4px 14px #c8a88822, inset 0 1px 0 #fff8e0;
+      position: relative;
+      overflow: hidden;
+    }
+    .note-inner::before {
+      content: '';
+      position: absolute;
+      left: 42px;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: rgba(216, 160, 170, 0.35);
+    }
+    .note-inner::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg, transparent, transparent 31px, rgba(200,180,160,0.18) 32px
+      );
+      pointer-events: none;
+    }
+    .note-text {
+      font-family: 'Caveat', cursive;
+      font-size: clamp(1.15rem, 2.5vw, 1.4rem);
+      color: var(--ink);
+      line-height: 2.05;
+      padding-left: 14px;
+      position: relative;
+      z-index: 1;
+    }
+    .note-sig {
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.3rem;
+      color: var(--rose);
+      margin-top: 10px;
+      display: block;
+      text-align: right;
+      padding-left: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Note rotation variation */
+    .memory:nth-child(1) .note-inner { transform: rotate(1deg); }
+    .memory:nth-child(2) .note-inner { transform: rotate(-0.8deg); }
+    .memory:nth-child(3) .note-inner { transform: rotate(1.5deg); }
+    .memory:nth-child(4) .note-inner { transform: rotate(-1.2deg); }
+    .memory:nth-child(5) .note-inner { transform: rotate(0.6deg); }
+
+    /* Decorative doodles */
+    .doodle {
+      position: absolute;
+      font-size: 1.4rem;
+      pointer-events: none;
+      opacity: 0.75;
+    }
+    .doodle-tl { top: -18px; left: -18px; transform: rotate(-20deg); }
+    .doodle-br { bottom: -16px; right: -12px; transform: rotate(15deg); font-size: 1.1rem; }
+
+    /* Washi tape strips scattered */
+    .washi {
+      position: absolute;
+      height: 16px;
+      opacity: 0.55;
+      border-radius: 1px;
+      pointer-events: none;
+    }
+    .washi-1 {
+      background: repeating-linear-gradient(90deg, #f9a8c9 0px, #f9a8c9 8px, #fde0ea 8px, #fde0ea 16px);
+      width: 120px; top: -7px; left: 30%; transform: rotate(-2deg);
+    }
+    .washi-2 {
+      background: repeating-linear-gradient(90deg, #fcd34d 0px, #fcd34d 6px, #fef3c7 6px, #fef3c7 12px);
+      width: 90px; bottom: 10px; right: 10%; transform: rotate(3deg);
+    }
+    .washi-3 {
+      background: repeating-linear-gradient(90deg, #a7f3d0 0px, #a7f3d0 10px, #d1fae5 10px, #d1fae5 20px);
+      width: 100px; top: 20%; left: -20px; transform: rotate(90deg);
+    }
+
+    /* Stickers floating around */
+    .sticker-abs {
+      position: absolute;
+      pointer-events: none;
+      font-size: 1.5rem;
+      opacity: 0.8;
+    }
+
+    /* Scrapbook connector thread */
+    .thread {
+      position: absolute;
+      left: 50%;
+      width: 1px;
+      background: repeating-linear-gradient(to bottom, #d0a0a8 0%, #d0a0a8 4px, transparent 4px, transparent 8px);
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.3rem;
+      color: var(--rose);
+      opacity: 0.7;
+    }
+      .btn-next {
+      margin-top: 32px;
+      z-index: 1;
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--rose);
+      color: #fff;
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.4rem;
+      font-weight: 600;
+      padding: 14px 36px;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 6px 24px #e8416f55, 0 2px 0 #b03050;
+      text-decoration: none;
+      transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+      letter-spacing: 0.5px;
+    }
+
+    /* Back button */
+    .back-btn {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--rose);
+      color: #fff;
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.25rem;
+      padding: 12px 32px;
+      border-radius: 50px;
+      text-decoration: none;
+      box-shadow: 0 6px 24px #d94f6e55;
+      transition: transform 0.15s, box-shadow 0.15s;
+      z-index: 50;
+      white-space: nowrap;
+    }
+    .back-btn:hover {
+      transform: translateX(-50%) translateY(-3px);
+      box-shadow: 0 12px 32px #d94f6e66;
+    }
+
+    /* Fade in animation */
+    .memory {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .memory.visible { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 600px) {
+      .memory { flex-direction: column !important; align-items: center; margin-left: 0 !important; margin-right: 0 !important; }
+      .memory:nth-child(odd) .polaroid,
+      .memory:nth-child(even) .polaroid { width: 200px; }
+      .note { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="page-title">our recap</span>
+  <p class="page-sub">~ anomali kediri kalimantan</header>
+  <div class="divider">
+    <div class="divider-line"></div>
+    <span>❤️</span>
+    <div class="divider-line"></div>
+  </div>
+</header>
+
+<div class="scrapbook">
+
+  <!-- MEMORY 1 - GANTI DENGAN FOTO 1 -->
+  <div class="memory">
+    <div class="polaroid">
+      <div class="tape tape-tl"></div>
+      <div class="tape tape-tr"></div>
+      <div class="photo-wrap">
+        <!-- Ganti src dengan foto1.jpeg -->
+        <img src="foto1.jpeg" 
+             alt="Memory 1 - First time together"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+        <div class="photo-ph" style="display:none"><span class="photo-ph-icon">📷</span>Foto 1 di sini</div>
+      </div>
+      <p class="pol-caption">Paralayang</p>
+      <span class="doodle doodle-br">⭐</span>
+    </div>
+
+    <div class="note">
+      <div class="washi washi-1"></div>
+      <div class="note-inner">
+        <p class="note-text">
+          jujur seru,bagus baik seneng juga karena kesini sama kamu<br>
+          dan ngerasa safe aja dan tenang karena ada hama kediri<br>
+        </p>
+        <span class="note-sig">— selalu ingat ini 💕</span>
+      </div>
+      <span class="sticker-abs" style="top:-16px;right:8px;transform:rotate(10deg)">🌹</span>
+    </div>
+  </div>
+
+  <!-- MEMORY 2 - GANTI DENGAN FOTO 2 -->
+  <div class="memory">
+    <div class="polaroid">
+      <div class="tape tape-tc"></div>
+      <div class="photo-wrap">
+        <img src="foto2.jpeg" 
+             alt="Memory 2 - Just us"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+        <div class="photo-ph" style="display:none"><span class="photo-ph-icon">📷</span>Foto 2 di sini</div>
+      </div>
+      <p class="pol-caption">just us ☁️</p>
+      <span class="doodle doodle-tl">💫</span>
+    </div>
+
+    <div class="note">
+      <div class="washi washi-3"></div>
+      <div class="note-inner">
+        <p class="note-text">
+          Waktu itu kita duduk diem aja, nggak ngapa-ngapain.<br>
+          Tapi entah kenapa itu salah satu saat yang paling aku suka.<br>
+          Diam bareng kamu lebih nyaman dari ribut sama siapapun.
+        </p>
+        <span class="note-sig">keren brok</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MEMORY 3 - GANTI DENGAN FOTO 3 -->
+  <div class="memory">
+    <div class="polaroid">
+      <div class="tape tape-tl"></div>
+      <div class="photo-wrap">
+        <img src="foto3.jpeg" 
+             alt="Memory 3 - Golden hour"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+        <div class="photo-ph" style="display:none"><span class="photo-ph-icon">📷</span>Foto 3 di sini</div>
+      </div>
+      <p class="pol-caption">golden hour 🌅</p>
+    </div>
+
+    <div class="note">
+      <div class="washi washi-2"></div>
+      <div class="note-inner">
+        <p class="note-text">
+          Cahaya pagi itu jatuh tepat di wajahmu,<br>
+          dan aku cuma bisa mikir: ini terlalu indah buat aku sendirian yang lihat.<br>
+          Makasih udah ada di frame hidupku. 🌻
+        </p>
+        <span class="note-sig">— golden hour favoritku 🧡</span>
+      </div>
+      <span class="sticker-abs" style="bottom:-12px;left:16px;transform:rotate(-8deg);font-size:1.8rem">🌼</span>
+    </div>
+  </div>
+
+  <!-- MEMORY 4 - GANTI DENGAN FOTO 4 -->
+  <div class="memory">
+    <div class="polaroid">
+      <div class="tape tape-tr"></div>
+      <div class="photo-wrap">
+        <img src="foto4.jpeg" 
+             alt="Memory 4 - Candid moment"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+        <div class="photo-ph" style="display:none"><span class="photo-ph-icon">📷</span>Foto 4 di sini</div>
+      </div>
+      <p class="pol-caption">racing</p>
+      <span class="doodle doodle-br">🎀</span>
+    </div>
+
+    <div class="note">
+      <div class="note-inner">
+        <p class="note-text">
+          CIPOOO JOKI RACING 
+        </p>
+        <span class="note-sig">— candid terbaik seumur hidup ❤️</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MEMORY 5 - GANTI DENGAN FOTO 5 -->
+  <div class="memory">
+    <div class="polaroid">
+      <div class="tape tape-tl"></div>
+      <div class="tape tape-tr"></div>
+      <div class="photo-wrap">
+        <img src="foto5.jpeg" 
+             alt="Memory 5 - Forever"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+        <div class="photo-ph" style="display:none"><span class="photo-ph-icon">📷</span>Foto 5 di sini</div>
+      </div>
+      <p class="pol-caption">forever 💗</p>
+      <span class="doodle doodle-tl">🌸</span>
+    </div>
+
+    <div class="note">
+      <div class="washi washi-1" style="bottom:-7px;top:auto;left:20%"></div>
+      <div class="note-inner">
+        <p class="note-text">
+         Our First Tracking To Kapas Biru
+        </p>
+        <span class="note-sig">Lumajangg</span>
+      </div>
+      <span class="sticker-abs" style="top:-20px;right:-8px;font-size:2rem">💝</span>
+    </div>
+  </div>
+
+</div><!-- end scrapbook -->
+
+<footer>with love, always 🌹</footer>
+
+<!-- Floating petals canvas -->
+<canvas id="petals" style="position:fixed; top:0; left:0; pointer-events:none; z-index:99;"></canvas>
+
+<script>
+  // Intersection observer fade-in
+  const memories = document.querySelectorAll('.memory');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 120);
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  memories.forEach(m => observer.observe(m));
+
+  // Falling petals canvas
+  const canvas = document.getElementById('petals');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+
+  const petals = Array.from({ length: 22 }, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height - canvas.height,
+    size: 5 + Math.random() * 8,
+    speed: 0.6 + Math.random() * 1.1,
+    drift: (Math.random() - 0.5) * 0.6,
+    angle: Math.random() * Math.PI * 2,
+    spin: (Math.random() - 0.5) * 0.04,
+    hue: 340 + Math.random() * 20,
+  }));
+
+  function drawPetal(p) {
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.angle);
+    ctx.beginPath();
+    ctx.ellipse(0, 0, p.size * 0.55, p.size, 0, 0, Math.PI * 2);
+    ctx.fillStyle = `hsla(${p.hue}, 70%, 82%, 0.7)`;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function animatePetals() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    petals.forEach(p => {
+      p.y += p.speed;
+      p.x += p.drift + Math.sin(p.y * 0.02) * 0.4;
+      p.angle += p.spin;
+      if (p.y > canvas.height + 20) {
+        p.y = -20;
+        p.x = Math.random() * canvas.width;
+      }
+      drawPetal(p);
+    });
+    requestAnimationFrame(animatePetals);
+  }
+  animatePetals();
+  
+</script>
+
+<!-- Next button -->
+<div style="display:flex; justify-content:center; margin-top:20px;">
+  <a class="btn-next" href="page2.html">
+    Buka Pesan <span class="arrow">→</span>
+  </a>
+</div>
+
+</body>
+</html>
